@@ -48,4 +48,4 @@ const RetreatCard: React.FC<RetreatCardProps> = ({
   );
 };
 
-export default RetreatCard;
+export default React.memo(RetreatCard);
