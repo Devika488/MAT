@@ -1,0 +1,92 @@
+.retreat-card {
+  background-color: var(--color-card-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.retreat-image-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+}
+
+.retreat-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.retreat-tag {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+}
+
+.retreat-info {
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.retreat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.retreat-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.retreat-price-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.retreat-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.retreat-duration {
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.retreat-location {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.location-icon {
+  width: 14px;
+  height: 14px;
+  stroke: var(--color-text-light);
+}
+
+.retreat-book-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.8rem;
+}
