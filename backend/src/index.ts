@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express, { Express } from 'express';
-import routes from './routes/routes';
-import { errorHandler } from './middleware/errorHandler';
+import routes from './routes/routes.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3001', 10);

@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import healthRouter from './health';
+import healthRouter from './health.js';
+import { retreatsRouter } from './retreats.js';
+import { bookingsRouter } from './bookings.js';
 
 const router: Router = Router();
 
@@ -10,5 +12,7 @@ router.get('/', (req, res) => {
 
 // Mount all application routes here
 router.use('/health', healthRouter);
+router.use('/retreats', retreatsRouter);
+router.use('/bookings', bookingsRouter);
 
 export default router;
