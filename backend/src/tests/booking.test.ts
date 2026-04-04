@@ -1,14 +1,13 @@
 import request from 'supertest';
 import app from '../app.js';
-import { pool } from '../db/index.js';
+import sql from '../db/index.js';
 
 const getRetreatId = async (roomType: string): Promise<number> => {
-  const result = await pool.query(
-    `SELECT id FROM retreats 
-     WHERE name = 'Test Retreat' AND room_type = $1`,
-    [roomType]
-  );
-  return result.rows[0].id;
+  const result = await sql`
+    SELECT id FROM retreats
+    WHERE name = 'Test Retreat' AND room_type = ${roomType}
+  `;
+  return result[0].id;
 };
 
 describe('POST /bookings — critical path', () => {
