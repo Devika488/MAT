@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RetreatCard.css';
 
 export interface RetreatCardProps {
@@ -12,7 +13,8 @@ export interface RetreatCardProps {
   roomType: string;
 }
 
-const RetreatCard: React.FC<RetreatCardProps> = ({
+export const RetreatCard: React.FC<RetreatCardProps> = ({
+  id,
   image,
   tag,
   title,
@@ -21,8 +23,10 @@ const RetreatCard: React.FC<RetreatCardProps> = ({
   location,
   roomType,
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="retreat-card">
+    <div className="retreat-card" style={{ cursor: 'pointer' }} onClick={() => navigate(`/retreats/${id}`)}>
       <div className="retreat-image-container">
         <img src={image} alt={title} className="retreat-image" />
         {tag && <span className="retreat-tag">{tag}</span>}
