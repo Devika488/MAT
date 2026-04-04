@@ -4,9 +4,12 @@ import express, { Express } from 'express';
 import routes from './routes/routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
+import { limiter } from './middleware/rateLimiter.js';
+
 const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3001', 10);
 
+app.use(limiter);
 app.use(express.json());
 
 // Routes

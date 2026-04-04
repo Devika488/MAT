@@ -1,18 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
+import { ZodSchema } from 'zod';
 
-export const validate =
-  (schema: ZodSchema) =>
-  (req: Request, res: Response, next: NextFunction): void => {
-    const result = schema.safeParse(req.body);
-    if (!result.success) {
-      const errors = (result.error as ZodError).errors.map((e) => ({
+export const validate = (schema: ZodSchema) => (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    res.status(400).json({
+      error: 'Validation failed',
+      details: result.error.errors.map(e => ({
         field: e.path.join('.'),
-        message: e.message,
-      }));
-      res.status(400).json({ errors });
-      return;
-    }
-    req.body = result.data;
-    next();
-  };
+        message: e.message
+      }))
+    });
+    return;
+  }
+
+  // Replace req.body with parsed + sanitised data
+  req.body = result.data;
+  next();
+};
