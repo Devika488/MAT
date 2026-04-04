@@ -5,7 +5,8 @@ export interface HealthResponse {
 }
 
 export const fetchHealth = async (): Promise<HealthResponse> => {
-  const response: Response = await fetch('/api/health');
+  const baseUrl = import.meta.env.VITE_API_URL || '';
+  const response: Response = await fetch(`${baseUrl}/api/health`);
   if (!response.ok) {
     throw new Error('Network error');
   }
