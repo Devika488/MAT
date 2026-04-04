@@ -1,0 +1,179 @@
+/* Wrapper isolation */
+.custom-datepicker-wrapper {
+  background-color: white;
+  border-radius: 6px;
+  overflow: visible;
+  position: relative;
+  width: 100%;
+}
+
+.custom-datepicker-wrapper .react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Base input field */
+.react-custom-datepicker {
+  width: 100%;
+  border: none;
+  padding: 1rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  outline: none;
+  background: transparent;
+}
+
+/* React DatePicker Custom Theming */
+.react-datepicker {
+  font-family: var(--font-body) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+  padding: 0.5rem !important;
+  background-color: #fcfcf9 !important;
+}
+
+/* Overridden Header Styles */
+.react-datepicker__header {
+  background-color: transparent !important;
+  border-bottom: none !important;
+  padding-top: 1rem !important;
+}
+
+/* Exact Custom Header Layout */
+.custom-datepicker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 10px 15px 10px;
+  position: relative;
+}
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.current-date-text {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #3b523e;
+}
+
+.header-dropdowns {
+  display: flex;
+  gap: 10px;
+}
+
+.header-dropdowns select {
+  font-family: var(--font-body);
+  color: #3b523e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 24px 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #dcd9d0;
+  background-color: white;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232C2C2C%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px top 50%;
+  background-size: 8px auto;
+}
+
+/* Nav Diamond Buttons */
+.nav-btn {
+  background: white;
+  /* border: 1px solid #3b523e; */
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #3b523e;
+  transform: rotate(45deg);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.nav-btn.prev {
+  margin-left: 5px;
+}
+
+.nav-btn.next {
+  margin-right: 5px;
+}
+
+.nav-btn svg {
+  transform: rotate(-45deg);
+  width: 14px;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #3b523e;
+  color: white;
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: #dcd9d0;
+  color: #dcd9d0;
+}
+
+/* Remove default nav arrows */
+.react-datepicker__navigation {
+  display: none !important;
+}
+
+
+/* Days configuration */
+.react-datepicker__day-names {
+  margin-top: 0.5rem !important;
+}
+
+.react-datepicker__day-name {
+  color: #888 !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+}
+
+.react-datepicker__day {
+  color: #333 !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__day:hover {
+  background-color: #e8ece9 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background-color: #3b523e !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: #5a7b60 !important;
+  color: white !important;
+}
+
+.react-datepicker__day--disabled {
+  color: #ccc !important;
+  cursor: not-allowed;
+}
+
+.react-datepicker__day--disabled:hover {
+  background-color: transparent !important;
+}
