@@ -75,15 +75,21 @@ export const Dropdown: React.FC<DropdownProps> = ({
               {placeholder}
             </li>
           )}
-          {options.filter(opt => opt.value !== '').map((opt) => (
-            <li 
-              key={opt.value} 
-              className={`dropdown-item ${value === opt.value ? 'selected' : ''}`}
-              onClick={() => handleSelect(opt.value)}
-            >
-              {opt.label}
+          {options.filter(opt => opt.value !== '').length > 0 ? (
+            options.filter(opt => opt.value !== '').map((opt) => (
+              <li 
+                key={opt.value} 
+                className={`dropdown-item ${value === opt.value ? 'selected' : ''}`}
+                onClick={() => handleSelect(opt.value)}
+              >
+                {opt.label}
+              </li>
+            ))
+          ) : (
+            <li className="dropdown-item disabled-item" style={{ fontStyle: 'italic', color: '#999', cursor: 'default' }}>
+              No options available
             </li>
-          ))}
+          )}
         </ul>
       )}
     </div>
