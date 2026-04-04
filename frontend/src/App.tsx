@@ -6,6 +6,7 @@ import { ToastProvider } from './components/common/Toast/ToastContext';
 
 const RetreatsPage = lazy(() => import('./pages/RetreatsPage/RetreatsPage'));
 const RetreatDetailPage = lazy(() => import('./pages/RetreatDetailPage/RetreatDetailPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage/AdminPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const App: React.FC = () => {
@@ -16,6 +17,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<RetreatsPage />} />
             <Route path="/retreats/:id" element={<RetreatDetailPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

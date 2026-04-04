@@ -1,0 +1,144 @@
+.admin-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fcfbf8;
+}
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  width: 100%;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.admin-title-section h1 {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  color: #274029;
+  margin-bottom: 1rem;
+}
+
+.admin-title-section p {
+  color: #666;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.admin-filters {
+  display: flex;
+  align-items: center;
+}
+
+.admin-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1.25rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-table th {
+  background-color: #f7f6f2;
+  color: #3b523e;
+  font-weight: 700;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+.admin-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.admin-table tbody tr:nth-child(even) {
+  background-color: #faf9f6;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f0f4f0;
+}
+
+.admin-table td {
+  color: #333;
+  vertical-align: top;
+}
+
+.traveller-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.retreat-name {
+  font-style: italic;
+  color: #666;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.confirmed {
+  background-color: #e6eedc;
+  color: #3b523e;
+}
+
+.status-badge.cancelled {
+  background-color: #f5e6e6;
+  color: #a43a3a;
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #faf9f6;
+  border-top: 1px solid #e5e5e5;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.pagination-controls button {
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-controls button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}

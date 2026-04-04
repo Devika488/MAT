@@ -31,5 +31,11 @@ export interface BookingResponse extends BookingPayload {
   status: string;
 }
 
+export interface FetchedBooking extends BookingResponse {
+  retreat_name: string;
+  location: string;
+  country: string;
+}
+
 // Ensure Retreat is fully typed with database keys
 export interface ExtendedRetreat extends Retreat {}
