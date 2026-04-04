@@ -1,10 +1,8 @@
-import { Pool } from 'pg';
+import postgres from 'postgres';
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+const connectionString = process.env.DATABASE_URL!;
+const sql = postgres(connectionString, {
+  ssl: 'require',
 });
 
-pool.on('error', (err: Error) => {
-  console.error('Unexpected error on idle pg client', err);
-  process.exit(-1);
-});
+export default sql;
