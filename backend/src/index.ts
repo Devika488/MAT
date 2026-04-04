@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import 'express-async-errors';
 import express, { Express } from 'express';
+import cors from 'cors';
 import routes from './routes/routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -10,10 +11,11 @@ const app: Express = express();
 const port: number = parseInt(process.env.PORT || '3001', 10);
 
 app.use(limiter);
+app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/', routes);
+app.use('/api', routes);
 
 // Global Error Handler
 app.use(errorHandler);
