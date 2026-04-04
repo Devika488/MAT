@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import { Retreat } from '../../types';
 import { useToast } from '../../components/common/Toast/ToastContext';
+import { getRetreatById } from '../../services';
 import ReserveBlock from './ReserveBlock';
 import './RetreatDetailPage.css';
 
@@ -17,11 +18,8 @@ const RetreatDetailPage: React.FC = () => {
 
     const fetchRetreat = async () => {
       try {
-        const response = await fetch(`/api/retreats/${id}`);
-        if (!response.ok) {
-          throw new Error('Retreat not found');
-        }
-        const data = await response.json();
+        if (!id) return;
+        const data = await getRetreatById(id);
         if (active) {
           setRetreat(data);
         }

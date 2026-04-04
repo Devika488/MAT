@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { DatePicker } from '../../components/common/DatePicker/DatePicker';
 import { Input } from '../../components/common/Input/Input';
 import { useToast } from '../../components/common/Toast/ToastContext';
-import { RoomAvailability } from '../../types';
+import { RoomAvailability, BookingPayload } from '../../types';
+import { getAvailability, createBooking } from '../../services';
 import './ReserveBlock.css';
 
 interface ReserveBlockProps {
@@ -77,17 +78,7 @@ const ReserveBlock: React.FC<ReserveBlockProps> = ({ retreatId }) => {
     const fetchAvailability = async () => {
       setLoadingRooms(true);
       try {
-        let url = `/api/retreats/${retreatId}/availability`;
-        
-        if (checkIn && checkOut && checkIn < checkOut) {
-          const ciStr = checkIn.toLocaleDateString('en-CA');
-          const coStr = checkOut.toLocaleDateString('en-CA');
-          url += `?check_in=${ciStr}&check_out=${coStr}`;
-        }
-        
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to fetch availability');
+        const data = await getAvailability(retreatId, checkIn, checkOut);
         
         if (active) {
           setRooms(data.rooms);
@@ -133,7 +124,7 @@ const ReserveBlock: React.FC<ReserveBlockProps> = ({ retreatId }) => {
     try {
       const roomData = rooms.find((r) => r.room_type === selectedRoom);
       
-      const payload = {
+      const payload: BookingPayload = {
         traveller_name: name,
         email,
         retreat_id: roomData ? Number(roomData.id) : Number(retreatId),
@@ -142,16 +133,7 @@ const ReserveBlock: React.FC<ReserveBlockProps> = ({ retreatId }) => {
         check_out: checkOut!.toLocaleDateString('en-CA')
       };
 
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Conflict generating booking');
-      }
+      await createBooking(payload);
 
       showToast('Booking successfully scheduled! We will contact you soon.', 'success');
       
