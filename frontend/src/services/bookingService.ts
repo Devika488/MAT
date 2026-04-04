@@ -1,5 +1,6 @@
 export const getBookings = async () => {
-  const response = await fetch('/api/bookings');
+  const baseUrl = import.meta.env.VITE_API_URL || '';
+  const response = await fetch(`${baseUrl}/api/bookings`);
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
     throw new Error(errData.error || 'Failed to fetch bookings');

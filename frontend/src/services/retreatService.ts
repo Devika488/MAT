@@ -10,7 +10,8 @@ export const getRetreats = async (filter?: { country?: string; type?: string }) 
 
 export const getRecommendations = async (goal: string) => {
   const query = new URLSearchParams({ goal });
-  const response = await fetch(`/api/retreats/recommend?${query.toString()}`);
+  const baseUrl = import.meta.env.VITE_API_URL || '';
+  const response = await fetch(`${baseUrl}/api/retreats/recommend?${query.toString()}`);
   if (!response.ok) throw new Error('Failed to fetch recommendations');
   return response.json();
 };
