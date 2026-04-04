@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { pool } from '../db/index.js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import sql from '../db/index.js';
 import Groq from 'groq-sdk';
 const groq = new Groq({ apiKey: process.env.GROQ_AI_KEY });
 
@@ -20,23 +19,23 @@ export const getAllRetreats = async (req: Request, res: Response): Promise<void>
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-  const result = await pool.query(
+  const result = await sql.unsafe(
     `SELECT DISTINCT ON (name) * FROM retreats ${where} ORDER BY name, price_usd ASC`,
-    values
+    values as any[]
   );
-  res.json(result.rows);
+  res.json(result);
 };
 
 export const getRetreatById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const result = await pool.query('SELECT * FROM retreats WHERE id = $1', [id]);
+  const result = await sql`SELECT * FROM retreats WHERE id = ${id}`;
 
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     res.status(404).json({ error: 'Retreat not found' });
     return;
   }
 
-  res.json(result.rows[0]);
+  res.json(result[0]);
 };
 
 export const getRetreatAvailability = async (
@@ -47,22 +46,21 @@ export const getRetreatAvailability = async (
   const { check_in, check_out } = req.query;
 
   // Single query — all room variants for this retreat
-  const roomsResult = await pool.query(
-    `SELECT r2.id, r2.room_type, r2.price_usd, r2.duration_days, r2.ayurveda_type, r2.name
-     FROM retreats r1
-     JOIN retreats r2 ON r2.name = r1.name
-     WHERE r1.id = $1
-     ORDER BY r2.price_usd`,
-    [id]
-  );
+  const roomsResult = await sql`
+    SELECT r2.id, r2.room_type, r2.price_usd, r2.duration_days, r2.ayurveda_type, r2.name
+    FROM retreats r1
+    JOIN retreats r2 ON r2.name = r1.name
+    WHERE r1.id = ${id}
+    ORDER BY r2.price_usd
+  `;
 
-  if (roomsResult.rows.length === 0) {
+  if (roomsResult.length === 0) {
     res.status(404).json({ error: 'Retreat not found' });
     return;
   }
 
-  const retreatName = roomsResult.rows[0].name;
-  const roomIds = roomsResult.rows.map(r => r.id);
+  const retreatName = roomsResult[0].name;
+  const roomIds = roomsResult.map(r => r.id);
 
   // No dates — return null availability
   const hasValidDates =
@@ -76,7 +74,7 @@ export const getRetreatAvailability = async (
       retreat_name: retreatName,
       check_in: null,
       check_out: null,
-      rooms: roomsResult.rows.map(r => ({ ...r, available: null }))
+      rooms: roomsResult.map(r => ({ ...r, available: null }))
     });
     return;
   }
@@ -88,22 +86,21 @@ export const getRetreatAvailability = async (
   }
 
   // Check which room ids are already booked in this window
-  const bookedResult = await pool.query(
-    `SELECT retreat_id FROM bookings
-     WHERE retreat_id = ANY($1)
-       AND status = 'confirmed'
-       AND check_in  < $3
-       AND check_out > $2`,
-    [roomIds, check_in, check_out]
-  );
+  const bookedResult = await sql`
+    SELECT retreat_id FROM bookings
+    WHERE retreat_id = ANY(${roomIds})
+      AND status = 'confirmed'
+      AND check_in  < ${check_out}
+      AND check_out > ${check_in}
+  `;
 
-  const bookedIds = new Set(bookedResult.rows.map(r => r.retreat_id));
+  const bookedIds = new Set(bookedResult.map(r => r.retreat_id));
 
   res.json({
     retreat_name: retreatName,
     check_in,
     check_out,
-    rooms: roomsResult.rows.map(r => ({
+    rooms: roomsResult.map(r => ({
       ...r,
       available: !bookedIds.has(r.id)
     }))
@@ -118,13 +115,13 @@ export const recommendRetreats = async (req: Request, res: Response): Promise<vo
     return;
   }
 
-  const result = await pool.query(
-    `SELECT DISTINCT ON (name) id, name, location, country, duration_days, price_usd, ayurveda_type,image_url 
-     FROM retreats 
-     ORDER BY name, price_usd ASC`
-  );
+  const result = await sql`
+    SELECT DISTINCT ON (name) id, name, location, country, duration_days, price_usd, ayurveda_type, image_url
+    FROM retreats
+    ORDER BY name, price_usd ASC
+  `;
 
-  const retreats = result.rows;
+  const retreats = result;
 
   const prompt = `You are an Ayurveda wellness expert.
 
@@ -147,11 +144,11 @@ Return ONLY valid JSON array. No markdown, no explanation outside JSON.`;
 
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',  // fast + free on Groq
+      model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'user', content: prompt }
       ],
-      temperature: 0.3,   // lower = more consistent JSON output
+      temperature: 0.3,
       max_tokens: 1024,
     });
 
