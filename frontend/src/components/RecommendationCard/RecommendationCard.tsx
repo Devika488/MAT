@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RecommendationCard.css';
 
 interface RecommendationCardProps {
@@ -8,17 +9,27 @@ interface RecommendationCardProps {
   ayurveda_type: string;
   price_usd: number;
   reason: string;
+  image_url?: string;
 }
 
 const RecommendationCard: React.FC<RecommendationCardProps> = ({
+  id,
   name,
   location,
   ayurveda_type,
   price_usd,
-  reason
+  reason,
+  image_url
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="recommendation-card">
+    <div className="recommendation-card" onClick={() => navigate(`/retreats/${id}`)}>
+      {image_url && (
+        <div className="recommendation-image">
+          <img src={image_url} alt={name} />
+        </div>
+      )}
       <div className="recommendation-content">
         <div className="recommendation-header">
           <span className="recommendation-tag">{ayurveda_type}</span>

@@ -9,6 +9,7 @@ interface DropdownProps {
   onChange: (value: string) => void;
   placeholder?: string;
   id?: string;
+  disabled?: boolean;
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({ 
@@ -17,7 +18,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   value, 
   onChange, 
   placeholder,
-  id 
+  id,
+  disabled
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,10 +47,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return (
     <div className="dropdown-container" ref={dropdownRef}>
       <div 
-        className={`custom-select ${isOpen ? 'open' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        className={`custom-select ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
         id={id}
-        tabIndex={0}
+        tabIndex={disabled ? -1 : 0}
       >
         <div className="select-inner">
           {label && <span className="dropdown-label-inner">{label}</span>}
