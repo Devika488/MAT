@@ -93,6 +93,14 @@ const RetreatsPage: React.FC = () => {
 
   const handleSearch = async () => {
     if (!searchGoal.trim()) return;
+    
+    // Clear filters and reset pagination when initiating a search
+    setPendingCountry('');
+    setPendingType('');
+    setActiveCountry('');
+    setActiveType('');
+    setCurrentPage(1);
+    
     setIsSearching(true);
     setRecommendations(null);
     try {
@@ -149,6 +157,7 @@ const RetreatsPage: React.FC = () => {
                   { label: 'India', value: 'India' },
                   { label: 'Sri Lanka', value: 'Sri Lanka' }
                 ]}
+                disabled={!!recommendations || isSearching}
               />
             </div>
             <div className="filter-group">
@@ -164,13 +173,14 @@ const RetreatsPage: React.FC = () => {
                   { label: 'Rasayana', value: 'Rasayana' },
                   { label: 'Rejuvenation', value: 'Rejuvenation' }
                 ]}
+                disabled={!!recommendations || isSearching}
               />
             </div>
             
             <button 
-              className={`apply-filters-btn ${!hasChanges ? 'disabled' : ''}`}
+              className={`apply-filters-btn ${!hasChanges || !!recommendations || isSearching ? 'disabled' : ''}`}
               onClick={handleApply}
-              disabled={!hasChanges}
+              disabled={!hasChanges || !!recommendations || isSearching}
             >
               APPLY FILTERS
             </button>
@@ -221,6 +231,7 @@ const RetreatsPage: React.FC = () => {
                     location={rec.location}
                     ayurveda_type={rec.ayurveda_type}
                     price_usd={rec.price_usd}
+                    image_url={rec.image_url}
                     reason={rec.reason}
                   />
                 ))
