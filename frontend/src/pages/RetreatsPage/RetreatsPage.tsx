@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import Header from '../../components/Header/Header';
 import RetreatCard from '../../components/RetreatCard/RetreatCard';
 import Pagination from '../../components/Pagination/Pagination';
+import RecommendationCard from '../../components/RecommendationCard/RecommendationCard';
+import { useToast } from '../../components/common/Toast/ToastContext';
 import './RetreatsPage.css';
 
 import { Retreat } from '../../types';
-import { getRetreats } from '../../services/retreatService';
+import { getRetreats, getRecommendations } from '../../services/retreatService';
 import { Dropdown } from '../../components/common/Dropdown';
 
 const RetreatsPage: React.FC = () => {
   const [retreats, setRetreats] = useState<Retreat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const [pendingCountry, setPendingCountry] = useState<string>('');
   const [pendingType, setPendingType] = useState<string>('');
@@ -21,6 +24,10 @@ const RetreatsPage: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+
+  const [recommendations, setRecommendations] = useState<any[] | null>(null);
+  const [searchGoal, setSearchGoal] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   React.useEffect(() => {
     let active = true;
@@ -40,6 +47,7 @@ const RetreatsPage: React.FC = () => {
       } catch (err: any) {
         if (active) {
           setError(err.message || 'Failed to fetch retreats');
+          showToast(err.message || 'Failed to fetch retreats', 'error');
         }
       } finally {
         if (active) {
@@ -79,6 +87,22 @@ const RetreatsPage: React.FC = () => {
     setPendingType('');
     setActiveCountry('');
     setActiveType('');
+    setRecommendations(null);
+    setSearchGoal('');
+  };
+
+  const handleSearch = async () => {
+    if (!searchGoal.trim()) return;
+    setIsSearching(true);
+    setRecommendations(null);
+    try {
+      const data = await getRecommendations(searchGoal);
+      setRecommendations(data.recommendations || []);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to get recommendations', 'error');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   return (
@@ -95,6 +119,25 @@ const RetreatsPage: React.FC = () => {
           </div>
           
           <div className="hero-filters-bar">
+            {/* Recommendation Search */}
+            <div className="search-group">
+              <input 
+                type="text" 
+                placeholder="E.g., I have stress and back pain..." 
+                value={searchGoal}
+                onChange={(e) => setSearchGoal(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="search-input"
+              />
+              <button 
+                className="btn-primary search-btn" 
+                onClick={handleSearch}
+                disabled={isSearching || !searchGoal.trim()}
+              >
+                {isSearching ? 'Thinking...' : 'Search'}
+              </button>
+            </div>
+            
             <div className="filter-group">
               <Dropdown 
                 id="country"
@@ -132,7 +175,7 @@ const RetreatsPage: React.FC = () => {
               APPLY FILTERS
             </button>
             
-            {hasActiveFilters && (
+            {hasActiveFilters && !recommendations && (
               <button className="clear-filters-btn" onClick={handleClear}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
@@ -140,13 +183,52 @@ const RetreatsPage: React.FC = () => {
                 <span>CLEAR</span>
               </button>
             )}
+            
+            {recommendations && (
+              <button className="clear-filters-btn" onClick={handleClear}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                </svg>
+                <span>BACK TO ALL</span>
+              </button>
+            )}
           </div>
         </section>
 
         <section className="retreats-grid">
-          {loading && <div className="loading-state">Loading retreats...</div>}
-          {!loading && error && <div className="error-state">{error}</div>}
-          {!loading && !error && currentItems.length === 0 && (
+          {loading && !recommendations && <div className="loading-state">Loading retreats...</div>}
+          {isSearching && <div className="loading-state">Finding best recommendations...</div>}
+          {!loading && error && !recommendations && <div className="error-state">{error}</div>}
+          
+          {recommendations !== null && !isSearching && (
+            <>
+              {recommendations.length === 0 ? (
+                <div className="empty-state">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <h3>No recommendations found</h3>
+                  <p>Try rephrasing your goal.</p>
+                  <button className="btn-secondary" onClick={handleClear}>Back to full list</button>
+                </div>
+              ) : (
+                recommendations.map((rec) => (
+                  <RecommendationCard 
+                    key={rec.retreat_id}
+                    id={rec.retreat_id}
+                    name={rec.name}
+                    location={rec.location}
+                    ayurveda_type={rec.ayurveda_type}
+                    price_usd={rec.price_usd}
+                    reason={rec.reason}
+                  />
+                ))
+              )}
+            </>
+          )}
+
+          {!loading && !error && currentItems.length === 0 && recommendations === null && !isSearching && (
             <div className="empty-state">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -157,7 +239,7 @@ const RetreatsPage: React.FC = () => {
               <button className="btn-secondary" onClick={handleClear}>Clear Filters</button>
             </div>
           )}
-          {!loading && !error && currentItems.map((retreat) => (
+          {!loading && !error && recommendations === null && !isSearching && currentItems.map((retreat) => (
             <RetreatCard 
               key={retreat.id} 
               id={retreat.id}
@@ -172,11 +254,13 @@ const RetreatsPage: React.FC = () => {
           ))}
         </section>
 
-        <Pagination 
-          currentPage={currentPage}
-          totalPages={totalPages > 0 ? totalPages : 1}
-          onPageChange={handlePageChange}
-        />
+        {recommendations === null && !isSearching && (
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages > 0 ? totalPages : 1}
+            onPageChange={handlePageChange}
+          />
+        )}
       </main>
     </div>
   );
