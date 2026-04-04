@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { pool } from '../db/index.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
+const groq = new Groq({ apiKey: process.env.GROQ_AI_KEY });
 
 export const getAllRetreats = async (req: Request, res: Response): Promise<void> => {
   const { country, ayurveda_type } = req.query;
@@ -38,7 +40,7 @@ export const getRetreatById = async (req: Request, res: Response): Promise<void>
 };
 
 export const getRetreatAvailability = async (
-  req: Request, 
+  req: Request,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
@@ -108,36 +110,102 @@ export const getRetreatAvailability = async (
   });
 };
 
+// export const recommendRetreats = async (req: Request, res: Response): Promise<void> => {
+//   const { goal } = req.query;
+//   if (!goal || typeof goal !== 'string' || goal.trim().length === 0) {
+//     res.status(400).json({ error: 'Health goal is required' });
+//     return;
+//   }
+//   // Fetch all retreats for recommendation context
+//   const result = await pool.query(
+//     `SELECT DISTINCT ON (name) id, name, location, country, duration_days, price_usd, ayurveda_type FROM retreats ORDER BY name, price_usd ASC`
+//   );
+//   const retreats = result.rows;
+//   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY!);
+//   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+//   const prompt = `You are an Ayurveda wellness expert.
+
+// A user has this health goal: "${goal}"
+
+// Here are the available retreats:\n${JSON.stringify(retreats, null, 2)}
+
+// Return a JSON array of the top 3 most suitable retreats ranked by relevance.
+// Each item must have:\n- retreat_id (number)\n- name (string)\n- location (string)\n- ayurveda_type (string)\n- price_usd (number)\n- reason (1-2 sentences explaining why this suits the goal)\n\nReturn ONLY valid JSON array. No markdown, no explanation outside JSON.`;
+//   try {
+//     const geminiResult = await model.generateContent(prompt);
+//     const text = geminiResult.response.text();
+//     const cleaned = text.replace(/```json|```/g, '').trim();
+//     const recommendations = JSON.parse(cleaned);
+//     res.json({ goal, recommendations });
+//   } catch (err) {
+//     console.error('Gemini recommendation error:', err);
+//     // Fallback: return first three retreats
+//     res.status(502).json({
+//       error: 'AI recommendation unavailable',
+//       fallback: retreats.slice(0, 3).map(r => ({
+//         retreat_id: r.id,
+//         name: r.name,
+//         location: r.location,
+//         ayurveda_type: r.ayurveda_type,
+//         price_usd: Number(r.price_usd),
+//         reason: 'Fallback recommendation'
+//       }))
+//     });
+//   }
+// };
 export const recommendRetreats = async (req: Request, res: Response): Promise<void> => {
   const { goal } = req.query;
+
   if (!goal || typeof goal !== 'string' || goal.trim().length === 0) {
     res.status(400).json({ error: 'Health goal is required' });
     return;
   }
-  // Fetch all retreats for recommendation context
+
   const result = await pool.query(
-    `SELECT DISTINCT ON (name) id, name, location, country, duration_days, price_usd, ayurveda_type FROM retreats ORDER BY name, price_usd ASC`
+    `SELECT DISTINCT ON (name) id, name, location, country, duration_days, price_usd, ayurveda_type,image_url 
+     FROM retreats 
+     ORDER BY name, price_usd ASC`
   );
+
   const retreats = result.rows;
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY!);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
   const prompt = `You are an Ayurveda wellness expert.
 
 A user has this health goal: "${goal}"
 
-Here are the available retreats:\n${JSON.stringify(retreats, null, 2)}
+Here are the available retreats:
+${JSON.stringify(retreats, null, 2)}
 
 Return a JSON array of the top 3 most suitable retreats ranked by relevance.
-Each item must have:\n- retreat_id (number)\n- name (string)\n- location (string)\n- ayurveda_type (string)\n- price_usd (number)\n- reason (1-2 sentences explaining why this suits the goal)\n\nReturn ONLY valid JSON array. No markdown, no explanation outside JSON.`;
+Each item must have:
+- retreat_id (number)
+- name (string)
+- location (string)
+- ayurveda_type (string)
+- price_usd (number)
+- image_url(string)
+- reason (1-2 sentences explaining why this suits the goal)
+
+Return ONLY valid JSON array. No markdown, no explanation outside JSON.`;
+
   try {
-    const geminiResult = await model.generateContent(prompt);
-    const text = geminiResult.response.text();
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',  // fast + free on Groq
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.3,   // lower = more consistent JSON output
+      max_tokens: 1024,
+    });
+
+    const text = completion.choices[0]?.message?.content ?? '';
     const cleaned = text.replace(/```json|```/g, '').trim();
     const recommendations = JSON.parse(cleaned);
+
     res.json({ goal, recommendations });
+
   } catch (err) {
-    console.error('Gemini recommendation error:', err);
-    // Fallback: return first three retreats
+    console.error('Groq recommendation error:', err);
     res.status(502).json({
       error: 'AI recommendation unavailable',
       fallback: retreats.slice(0, 3).map(r => ({
@@ -146,7 +214,7 @@ Each item must have:\n- retreat_id (number)\n- name (string)\n- location (string
         location: r.location,
         ayurveda_type: r.ayurveda_type,
         price_usd: Number(r.price_usd),
-        reason: 'Fallback recommendation'
+        reason: 'Fallback recommendation — AI unavailable'
       }))
     });
   }
