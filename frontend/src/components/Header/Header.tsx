@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import './Header.css';
 
 const Header: React.FC = () => {
@@ -10,8 +10,8 @@ const Header: React.FC = () => {
           <Link to="/">MyAyurvedaTrip</Link>
         </div>
         <nav className="header-nav">
-          <Link to="/" className="nav-link active">Retreats</Link>
-          <Link to="/admin" className="nav-link">Admin</Link>
+          <NavLink to="/" className="nav-link" end>Retreats</NavLink>
+          <NavLink to="/admin" className="nav-link">Admin</NavLink>
         </nav>
         {/* User icon removed as per requirement */}
         <div className="header-actions">
