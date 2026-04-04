@@ -30,8 +30,8 @@ export const emailService = {
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9f7f2; margin: 0; padding: 0; color: #333; }
         .container { max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .header { padding: 30px; text-align: center; background-color: #f9f7f2; }
-        .logo { font-family: 'Georgia', serif; font-size: 24px; font-weight: bold; color: #2c4a3e; letter-spacing: 2px; }
+        .header { padding: 40px 30px; text-align: center; background-color: #f9f7f2; }
+        .logo-img { height: 60px; width: auto; margin-bottom: 10px; }
         .hero-img { width: 100%; height: 300px; object-fit: cover; }
         .content { padding: 40px; text-align: center; background-color: #fff; }
         h1 { font-family: 'Georgia', serif; color: #2c4a3e; font-size: 28px; margin-bottom: 20px; font-weight: normal; }

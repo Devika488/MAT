@@ -1,16 +1,29 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import './Header.css';
 
 const Header: React.FC = () => {
+  const location = useLocation();
+
   return (
     <header className="header">
       <div className="header-container">
         <div className="header-logo">
-          <Link to="/">MyAyurvedaTrip</Link>
+          <Link to="/">
+            <img src="/logo.png" alt="MTA Logo" className="logo-img" />
+            <span>MyAyurvedaTrip</span>
+          </Link>
         </div>
         <nav className="header-nav">
-          <NavLink to="/" className="nav-link" end>Retreats</NavLink>
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => 
+              `nav-link ${isActive || location.pathname.startsWith('/retreats') ? 'active' : ''}`
+            }
+            end
+          >
+            Retreats
+          </NavLink>
           <NavLink to="/admin" className="nav-link">Admin</NavLink>
         </nav>
         {/* User icon removed as per requirement */}
