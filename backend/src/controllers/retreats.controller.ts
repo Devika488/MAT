@@ -120,7 +120,7 @@ export const recommendRetreats = async (req: Request, res: Response): Promise<vo
   );
   const retreats = result.rows;
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY!);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
   const prompt = `You are an Ayurveda wellness expert.
 
 A user has this health goal: "${goal}"
