@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();              // ✅ loads .env before anything runs
+
 import sql from '../db/index.js';
 
 beforeAll(async () => {
-  // Clean slate before tests
   await sql`
     CREATE TABLE IF NOT EXISTS retreats (
       id SERIAL PRIMARY KEY,
@@ -16,6 +18,9 @@ beforeAll(async () => {
     )
   `;
 
+  await sql`CREATE INDEX IF NOT EXISTS idx_retreats_listing ON retreats (name, location, ayurveda_type, price_usd ASC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_retreats_country ON retreats (country)`;
+
   await sql`
     CREATE TABLE IF NOT EXISTS bookings (
       id SERIAL PRIMARY KEY,
@@ -29,7 +34,9 @@ beforeAll(async () => {
     )
   `;
 
-  // Seed one retreat with two room types
+  await sql`CREATE INDEX IF NOT EXISTS idx_bookings_retreat_id ON bookings (retreat_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_bookings_dates ON bookings (check_in, check_out)`;
+
   await sql`
     INSERT INTO retreats (name, location, country, duration_days, price_usd, ayurveda_type, room_type)
     VALUES 
@@ -40,7 +47,6 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clear bookings between tests — fresh state each time
   await sql`DELETE FROM bookings`;
 });
 
