@@ -19,7 +19,7 @@ export class RetreatsService {
 
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     return await sql.unsafe(
-      `SELECT DISTINCT ON (name) * FROM retreats ${where} ORDER BY name, price_usd ASC`,
+      `SELECT DISTINCT ON (name, location, ayurveda_type) * FROM retreats ${where} ORDER BY name, location, ayurveda_type, price_usd ASC`,
       values as any[]
     );
   }
@@ -79,9 +79,9 @@ export class RetreatsService {
 
   static async recommendRetreats(goal: string) {
     const result = await sql`
-      SELECT DISTINCT ON (name) id, name, location, country, duration_days, price_usd, ayurveda_type, image_url
+      SELECT DISTINCT ON (name, location, ayurveda_type) id, name, location, country, duration_days, price_usd, ayurveda_type, image_url
       FROM retreats
-      ORDER BY name, price_usd ASC
+      ORDER BY name, location, ayurveda_type, price_usd ASC
     `;
 
     const retreats = result;
