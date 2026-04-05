@@ -10,7 +10,6 @@ export interface RetreatCardProps {
   price: number;
   durationDays: number;
   location: string;
-  roomType: string;
 }
 
 export const RetreatCard: React.FC<RetreatCardProps> = ({
@@ -21,7 +20,6 @@ export const RetreatCard: React.FC<RetreatCardProps> = ({
   price,
   durationDays,
   location,
-  roomType,
 }) => {
   const navigate = useNavigate();
 
@@ -44,7 +42,7 @@ export const RetreatCard: React.FC<RetreatCardProps> = ({
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
             <circle cx="12" cy="10" r="3"></circle>
           </svg>
-          {location} • {roomType}
+          {location}
         </div>
         <button className="btn-secondary retreat-book-btn">View & Book</button>
       </div>

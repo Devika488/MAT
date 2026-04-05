@@ -260,7 +260,6 @@ const RetreatsPage: React.FC = () => {
               price={Number(retreat.price_usd)}
               durationDays={retreat.duration_days}
               location={retreat.location}
-              roomType={retreat.room_type}
             />
           ))}
         </section>

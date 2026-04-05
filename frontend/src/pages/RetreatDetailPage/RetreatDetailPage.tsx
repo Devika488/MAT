@@ -107,10 +107,6 @@ const RetreatDetailPage: React.FC = () => {
                 <span className="stat-value">{retreat.duration_days} Days / {retreat.duration_days - 1} Nights</span>
               </div>
               <div className="stat-block">
-                <span className="stat-label">ROOM FOCUS</span>
-                <span className="stat-value">{retreat.room_type}</span>
-              </div>
-              <div className="stat-block">
                 <span className="stat-label">PRICING</span>
                 <span className="stat-value">from ${Number(retreat.price_usd).toLocaleString()}</span>
               </div>
