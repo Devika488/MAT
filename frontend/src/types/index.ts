@@ -6,7 +6,7 @@ export interface Retreat {
   duration_days: number;
   price_usd: number | string;
   ayurveda_type: string;
-  room_type: string;
+  capacity: number;
   image_url: string;
 }
 

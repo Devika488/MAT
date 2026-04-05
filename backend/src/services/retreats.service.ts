@@ -30,50 +30,46 @@ export class RetreatsService {
   }
 
   static async getRetreatAvailability(id: string, check_in?: string, check_out?: string) {
-    // Single query — all room variants for this retreat
-    const roomsResult = await sql`
-      SELECT r2.id, r2.room_type, r2.price_usd, r2.duration_days, r2.ayurveda_type, r2.name
-      FROM retreats r1
-      JOIN retreats r2 ON r2.name = r1.name
-      WHERE r1.id = ${id}
-      ORDER BY r2.price_usd
+    const retreatResult = await sql`
+      SELECT id, name, capacity FROM retreats WHERE id = ${id}
     `;
 
-    if (roomsResult.length === 0) return null;
+    if (retreatResult.length === 0) {
+      return null;
+    }
 
-    const retreatName = roomsResult[0].name;
-    const roomIds = roomsResult.map(r => r.id);
+    const retreat = retreatResult[0];
 
-    const hasValidDates = check_in && check_out;
-
-    if (!hasValidDates) {
+    // No dates — return capacity only
+    if (!check_in || !check_out) {
       return {
-        retreat_name: retreatName,
-        check_in: null,
-        check_out: null,
-        rooms: roomsResult.map(r => ({ ...r, available: null }))
+        retreat_id:      retreat.id,
+        retreat_name:    retreat.name,
+        capacity:        retreat.capacity,
+        available_slots: null,
+        available:       null
       };
     }
 
-    // Check which room ids are already booked in this window
     const bookedResult = await sql`
-      SELECT retreat_id FROM bookings
-      WHERE retreat_id = ANY(${roomIds})
-        AND status = 'confirmed'
-        AND check_in  < ${check_out}
-        AND check_out > ${check_in}
+      SELECT COUNT(*) as booked
+      FROM bookings
+      WHERE retreat_id = ${id}
+        AND status     = 'confirmed'
+        AND check_in   < ${check_out}
+        AND check_out  > ${check_in}
     `;
 
-    const bookedIds = new Set(bookedResult.map(r => r.retreat_id));
+    const booked          = parseInt(bookedResult[0].booked);
+    const available_slots = retreat.capacity - booked;
 
     return {
-      retreat_name: retreatName,
-      check_in,
-      check_out,
-      rooms: roomsResult.map(r => ({
-        ...r,
-        available: !bookedIds.has(r.id)
-      }))
+      retreat_id:      retreat.id,
+      retreat_name:    retreat.name,
+      capacity:        retreat.capacity,
+      booked,
+      available_slots,
+      available:       available_slots > 0
     };
   }
 

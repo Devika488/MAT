@@ -13,7 +13,7 @@ beforeAll(async () => {
       duration_days INTEGER NOT NULL,
       price_usd NUMERIC NOT NULL,
       ayurveda_type VARCHAR NOT NULL,
-      room_type VARCHAR NOT NULL,
+      capacity INTEGER NOT NULL DEFAULT 10,
       image_url VARCHAR
     )
   `;
@@ -27,7 +27,6 @@ beforeAll(async () => {
       retreat_id INTEGER REFERENCES retreats(id),
       traveller_name VARCHAR NOT NULL,
       email VARCHAR NOT NULL,
-      room_type VARCHAR NOT NULL,
       check_in DATE NOT NULL,
       check_out DATE NOT NULL,
       status VARCHAR DEFAULT 'confirmed'
@@ -38,10 +37,10 @@ beforeAll(async () => {
   await sql`CREATE INDEX IF NOT EXISTS idx_bookings_dates ON bookings (check_in, check_out)`;
 
   await sql`
-    INSERT INTO retreats (name, location, country, duration_days, price_usd, ayurveda_type, room_type)
+    INSERT INTO retreats (name, location, country, duration_days, price_usd, ayurveda_type, capacity)
     VALUES 
-      ('Test Retreat', 'Trivandrum', 'India', 7, 1000, 'Detox', 'Standard Room'),
-      ('Test Retreat', 'Trivandrum', 'India', 7, 2000, 'Detox', 'Deluxe Suite')
+      ('Test Retreat', 'Trivandrum', 'India', 7, 1000, 'Detox', 1),
+      ('Test Retreat 2', 'Trivandrum', 'India', 7, 2000, 'Detox', 2)
     ON CONFLICT DO NOTHING
   `;
 });
