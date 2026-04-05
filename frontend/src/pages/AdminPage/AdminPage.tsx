@@ -4,6 +4,7 @@ import { Dropdown } from '../../components/common/Dropdown';
 import { getBookings, cancelBookingForGuest } from '../../services/bookingService';
 import { FetchedBooking } from '../../types/booking';
 import { useToast } from '../../components/common/Toast/ToastContext';
+import { ConfirmationModal } from '../../components/common/ConfirmationModal/ConfirmationModal';
 import './AdminPage.css';
 
 const AdminPage: React.FC = () => {
@@ -11,6 +12,8 @@ const AdminPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filterRetreat, setFilterRetreat] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
   const itemsPerPage = 10;
   const { showToast } = useToast();
 
@@ -29,14 +32,22 @@ const AdminPage: React.FC = () => {
     fetchBookings();
   }, [showToast]);
 
-  const handleCancel = async (id: number) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+  const handleCancelClick = (id: number) => {
+    setSelectedBookingId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!selectedBookingId) return;
     try {
-      await cancelBookingForGuest(id);
+      await cancelBookingForGuest(selectedBookingId);
       showToast('Booking cancelled successfully', 'success');
       fetchBookings();
     } catch (err: any) {
       showToast(err.message || 'Failed to cancel', 'error');
+    } finally {
+      setIsModalOpen(false);
+      setSelectedBookingId(null);
     }
   };
 
@@ -94,7 +105,7 @@ const AdminPage: React.FC = () => {
                 <th>Traveller Name</th>
                 <th>Email</th>
                 <th>Retreat Name</th>
-                <th>Room Type</th>
+
                 <th>Check-in</th>
                 <th>Check-out</th>
                 <th>Status</th>
@@ -119,7 +130,7 @@ const AdminPage: React.FC = () => {
                     </td>
                     <td>{booking.email}</td>
                     <td className="retreat-name">{booking.retreat_name}</td>
-                    <td>{booking.room_type}</td>
+
                     <td>{formatDate(booking.check_in)}</td>
                     <td>{formatDate(booking.check_out)}</td>
                     <td>
@@ -131,7 +142,7 @@ const AdminPage: React.FC = () => {
                       {booking.status === 'confirmed' && (
                         <button 
                           className="cancel-action-btn"
-                          onClick={() => handleCancel(booking.id)}
+                          onClick={() => handleCancelClick(booking.id)}
                         >
                           Cancel
                         </button>
@@ -170,6 +181,17 @@ const AdminPage: React.FC = () => {
           )}
         </div>
       </main>
+
+      <ConfirmationModal 
+        isOpen={isModalOpen}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking? This action will notify the guest and cannot be undone."
+        confirmLabel="Confirm Cancellation"
+        cancelLabel="Keep Booking"
+        isDanger={true}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
