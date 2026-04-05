@@ -2,13 +2,48 @@ import sql from '../db/index.js';
 import { emailService } from './email.service.js';
 
 export class BookingsService {
-  static async getAllBookings() {
-    return await sql`
+  static async getAllBookings(filters: {
+    retreat_id?: number;
+    status?: string;
+    page?: number;
+    limit?: number;
+  } = {}) {
+    const { retreat_id, status, page = 1, limit = 10 } = filters;
+    const offset = (page - 1) * limit;
+    const conditions: string[] = [];
+    const values: any[] = [];
+
+    if (retreat_id) {
+      values.push(retreat_id);
+      conditions.push(`b.retreat_id = $${values.length}`);
+    }
+
+    if (status) {
+      values.push(status);
+      conditions.push(`b.status = $${values.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const data = await sql.unsafe(`
       SELECT b.*, r.name AS retreat_name, r.location, r.country
       FROM bookings b
       JOIN retreats r ON r.id = b.retreat_id
+      ${whereClause}
       ORDER BY b.id DESC
-    `;
+      LIMIT ${limit} OFFSET ${offset}
+    `, values);
+
+    const countResult = await sql.unsafe(`
+      SELECT COUNT(*) as total FROM bookings b ${whereClause}
+    `, values);
+
+    return {
+      data,
+      total: parseInt(countResult[0].total),
+      page,
+      limit
+    };
   }
 
   static async createBooking(payload: {

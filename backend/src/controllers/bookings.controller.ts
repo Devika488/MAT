@@ -1,8 +1,16 @@
 import { Request, Response } from 'express';
 import { BookingsService } from '../services/bookings.service.js';
 
-export const getAllBookings = async (_req: Request, res: Response): Promise<void> => {
-  const result = await BookingsService.getAllBookings();
+export const getAllBookings = async (req: Request, res: Response): Promise<void> => {
+  const { retreat_id, status, page, limit } = req.query;
+  
+  const result = await BookingsService.getAllBookings({
+    retreat_id: retreat_id ? parseInt(retreat_id as string) : undefined,
+    status: status as string,
+    page: page ? parseInt(page as string) : undefined,
+    limit: limit ? parseInt(limit as string) : undefined
+  });
+  
   res.json(result);
 };
 

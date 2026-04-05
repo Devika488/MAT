@@ -180,7 +180,7 @@ describe('Booking API Comprehensive Tests', () => {
   });
 
   describe('GET /api/bookings', () => {
-    it('should list all bookings', async () => {
+    it('should list all bookings with pagination structure', async () => {
       // Create one booking to ensure list isn't empty
       await request(app).post('/api/bookings').send({
         traveller_name: 'List User',
@@ -192,9 +192,47 @@ describe('Booking API Comprehensive Tests', () => {
 
       const res = await request(app).get('/api/bookings');
       expect(res.status).toBe(200);
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBeGreaterThan(0);
-      expect(res.body[0]).toHaveProperty('retreat_name');
+      expect(res.body).toHaveProperty('data');
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.total).toBeGreaterThan(0);
+      expect(res.body.data[0]).toHaveProperty('retreat_name');
+    });
+
+    it('should filter bookings by retreat_id', async () => {
+      // Create one for retreat1
+      await request(app).post('/api/bookings').send({
+        traveller_name: 'Filter R1',
+        email: 'devika.ed0116@gmail.com',
+        retreat_id: retreatId1,
+        check_in: getFutureDate(10),
+        check_out: getFutureDate(15)
+      });
+      // Create one for retreat2
+      await request(app).post('/api/bookings').send({
+        traveller_name: 'Filter R2',
+        email: 'devika.ed0116@gmail.com',
+        retreat_id: retreatId2,
+        check_in: getFutureDate(10),
+        check_out: getFutureDate(15)
+      });
+
+      const res = await request(app).get(`/api/bookings?retreat_id=${retreatId1}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.length).toBeGreaterThan(0);
+      const allForRetreat1 = res.body.data.every((b: any) => b.retreat_id === retreatId1);
+      expect(allForRetreat1).toBe(true);
+    });
+
+    it('should support pagination (limit=1)', async () => {
+      // Ensure at least 2 bookings exist
+      await request(app).post('/api/bookings').send({ traveller_name: 'P1', email: 'devika.ed0116@gmail.com', retreat_id: retreatId1, check_in: getFutureDate(20), check_out: getFutureDate(25) });
+      await request(app).post('/api/bookings').send({ traveller_name: 'P2', email: 'devika.ed0116@gmail.com', retreat_id: retreatId1, check_in: getFutureDate(30), check_out: getFutureDate(35) });
+
+      const res = await request(app).get('/api/bookings?limit=1&page=1');
+      expect(res.status).toBe(200);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.limit).toBe(1);
+      expect(res.body.total).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -216,7 +254,7 @@ describe('Booking API Comprehensive Tests', () => {
 
       // Verify it's cancelled in list
       const listRes = await request(app).get('/api/bookings');
-      const cancelled = listRes.body.find((b: any) => b.id === bookingId);
+      const cancelled = listRes.body.data.find((b: any) => b.id === bookingId);
       expect(cancelled.status).toBe('cancelled');
     });
 

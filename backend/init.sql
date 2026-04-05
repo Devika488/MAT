@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 );
 
 CREATE INDEX idx_bookings_retreat_id ON bookings (retreat_id);
+CREATE INDEX idx_bookings_status ON bookings (status);
 CREATE INDEX idx_bookings_dates ON bookings (check_in, check_out);
 
 TRUNCATE retreats RESTART IDENTITY CASCADE;

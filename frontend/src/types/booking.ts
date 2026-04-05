@@ -30,3 +30,10 @@ export interface FetchedBooking extends BookingResponse {
 
 // Ensure Retreat is fully typed with database keys
 export interface ExtendedRetreat extends Retreat {}
+
+export interface PaginatedBookings {
+  data: FetchedBooking[];
+  total: number;
+  page: number;
+  limit: number;
+}
