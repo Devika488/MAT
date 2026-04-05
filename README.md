@@ -1,80 +1,153 @@
-# MyAyurvedaTrip — Full Stack Take-Home
+# MyAyurvedaTrip
 
-This is a working proof-of-concept for **MyAyurvedaTrip**, a sanctuary discovery and booking platform. It features a complete vertical slice including a Node.js/TypeScript/PostgreSQL backend and a modern React/TypeScript frontend.
+A proof-of-concept retreat discovery and booking platform built with 
+Node.js, Express, TypeScript, PostgreSQL, and React.
 
-## 🚀 Getting Started
+---
 
-### 1. Prerequisites
-- **Node.js** (v18+)
-- **PostgreSQL** instance (local or cloud)
+## Prerequisites
 
-### 2. Database Setup
-1. Create a database named `ayurvedatrip`.
-2. Run the initialization script provided in the root:
-   ```bash
-   psql -d ayurvedatrip -f backend/init.sql
-   ```
-   *This will create the `retreats` and `bookings` tables and seed them with 18 realistic retreats across India and Sri Lanka.*
+- Node.js v18+
+- PostgreSQL (local or cloud)
+- Groq API key (free at console.groq.com)
+- Brevo
+---
 
-### 3. Environment Configuration
-Create a `.env` file in the `backend` directory:
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/ayurvedatrip
-GROQ_AI_KEY=your_groq_api_key_here
-```
+## Setup
 
-### 4. Running the Application
-**Backend:**
+### 1. Clone and install
 ```bash
+# Backend
 cd backend
 npm install
-npm run dev
-```
 
-**Frontend:**
-```bash
+# Frontend
 cd frontend
 npm install
+```
+
+### 2. Database
+
+Create a database named `ayurvedatrip`:
+```bash
+psql -U postgres -c "CREATE DATABASE ayurvedatrip;"
+```
+
+Run migrations and seed data:
+```bash
+cd backend
+npm run migrate
+npm run seed
+```
+
+This creates the `retreats` and `bookings` tables and seeds 
+8 realistic retreats across India and Sri Lanka.
+
+### 3. Environment
+
+```env
+PORT=3001
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_sender_email_here
+GOOGLE_AI_KEY=your_google_ai_key_here
+GROQ_AI_KEY=your_groq_ai_key_here
+DATABASE_URL=postgresql://user:password@localhost:5432/ayurvedatrip
+FRONTEND_URL=http://localhost:5173
+```
+
+### 4. Run
+```bash
+# Backend — http://localhost:3001
+cd backend
+npm run dev
+
+# Frontend — http://localhost:5173
+cd frontend
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) to view the application.
+
+### 5. Tests
+```bash
+cd backend
+npm test
+```
 
 ---
 
-## 🏛️ Architecture Decisions
+## API Reference
 
-### 1. Service Layer Pattern
-I refactored the initial direct-access code into a dedicated **Service Layer** on both the frontend and backend.
-- **Frontend**: Components call services (e.g., `bookingService.ts`), keeping UI logic separate from HTTP details.
-- **Backend**: Controllers delegate database operations to services, allowing for cleaner testing and reuse of SQL logic.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/retreats | List retreats — filter by country, ayurveda_type, page, limit |
+| GET | /api/retreats/recommend | AI recommendation — ?goal=your+health+goal |
+| GET | /api/retreats/:id | Single retreat detail |
+| GET | /api/retreats/:id/availability | Check availability — ?check_in=&check_out= |
 
-### 2. Transaction-Based Bookings
-The booking creation process uses a PostgreSQL **Transaction**. It locks the retreat row, checks for date overlaps, and creates the booking atomically. This ensures data integrity even under concurrent requests.
+### Bookings
+- `GET /api/bookings` | List all bookings (supports status/retreat filters, pagination)
+  - Filter by `retreat_id` (ID)
+  - Filter by `status` (`confirmed`, `cancelled`)
+  - Pagination: `page` (default 1), `limit` (default 10)
+- `POST /api/bookings` | Create a booking (with capacity check)
+- `DELETE /api/bookings/:id` | Cancel a booking
 
-### 3. "Cancel" vs "Delete"
- `DELETE` endpoint : I implemented it as a **status update to 'cancelled'**. In a real-world booking platform, hard-deleting records is rarely desirable for audit trails. However, the endpoint is exposed as `DELETE /api/bookings/:id` to match the REST specification requested.
+### Example requests
+```bash
+# List retreats filtered by country
+curl http://localhost:3001/api/retreats?country=India
+
+# AI recommendation
+curl http://localhost:3001/api/retreats/recommend?goal=stress+and+back+pain
+
+# Check availability
+curl http://localhost:3001/api/retreats/1/availability?check_in=2026-06-01&check_out=2026-06-14
+
+# Create booking
+curl -X POST http://localhost:3001/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "retreat_id": 1,
+    "traveller_name": "John Doe",
+    "email": "john@example.com",
+    "check_in": "2026-06-01",
+    "check_out": "2026-06-14"
+  }'
+```
 
 ---
 
-## 🧠 Reflection (Task 3)
+## Tech Stack
 
-I chose to add **three specific improvements** that I believe are critical for a "real-world" version of this platform:
-
-### 1. AI-Powered Discovery (`GET /retreats/recommend`)
-- **What it is**: A natural language search bar where users can describe their health goals (e.g., "I have chronic stress and back pain").
-- **Why I chose it**: Ayurveda is deeply personal. Most users don't know if they need "Panchakarma" or "Rasayana". Allowing them to state their problem in plain English and getting ranked recommendations (powered by Llama 3 on Groq) makes the discovery process significantly more intuitive.
-
-### 2. Booking Confirmation Emails
-- **What it is**: Automated email triggers upon successful booking.
-- **Why I chose it**: Trust is the currency of travel platforms. A user booking a $3,000 retreat needs immediate confirmation. It provides the "end-to-end" closure that makes the POC feel like a real product.
-
-### 3. Admin Guest Management
-- **What it is**: A dedicated view (`/admin`) for operators to see all bookings and cancel them if needed.
-- **Why I chose it**: The prompt mentioned two kinds of users (operators and seekers). Building the "Discovery" side satisfies the seeker, but an operator needs to manage their business. This view completes the "vertical slice" by giving the operator control over the data created by the seeker.
+| Layer | Technology |
+|-------|------------|
+| Backend | Node.js, Express, TypeScript |
+| Database | PostgreSQL |
+| Validation | Zod |
+| Rate limiting | express-rate-limit |
+| AI | Groq Cloud — Llama 3.3 70B |
+| Frontend | React, TypeScript, Vite |
+| Tests | Jest, Supertest |
 
 ---
 
-## 🛠️ Tech Stack
-- **Backend**: Node.js, Express, TypeScript, postgres.js, Zod (validation)
-- **Frontend**: React, TypeScript, Vite, Vanilla CSS
-- **AI**: Groq Cloud (Llama-3.3-70b)
+## Project Structure
+```
+myayurvedatrip/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   ├── schemas/
+│   │   ├── db/
+│   │   └── tests/
+│   ├── .env.example
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   └── services/
+│   └── package.json
+└── REFLECTION.md
+```
