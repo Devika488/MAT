@@ -73,12 +73,42 @@ export class BookingsService {
   }
 
   static async cancelBooking(id: string) {
-    const result = await sql`
-      UPDATE bookings
-      SET status = 'cancelled'
-      WHERE id = ${id} AND status = 'confirmed'
-      RETURNING *
-    `;
-    return result.length > 0 ? result[0] : null;
+    return await sql.begin(async (tx: any) => {
+      // Fetch booking and retreat info first
+      const bookingResult = await tx`
+        SELECT b.*, r.name AS retreat_name, r.location
+        FROM bookings b
+        JOIN retreats r ON r.id = b.retreat_id
+        WHERE b.id = ${id} AND b.status = 'confirmed'
+        FOR UPDATE
+      `;
+
+      if (bookingResult.length === 0) {
+        return null;
+      }
+
+      const booking = bookingResult[0];
+
+      // Perform update
+      const updateResult = await tx`
+        UPDATE bookings
+        SET status = 'cancelled'
+        WHERE id = ${id}
+        RETURNING *
+      `;
+
+      // Trigger cancellation email in background
+      emailService.sendCancellationEmail({
+        booking_id: booking.id,
+        traveller_name: booking.traveller_name,
+        email: booking.email,
+        retreat_name: booking.retreat_name,
+        location: booking.location,
+        check_in: booking.check_in,
+        check_out: booking.check_out
+      }).catch(err => console.error('Cancellation email background error:', err));
+
+      return updateResult[0];
+    });
   }
 }
