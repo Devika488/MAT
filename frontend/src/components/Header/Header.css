@@ -64,3 +64,29 @@
   display: flex;
   justify-content: flex-end;
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem 0;
+  }
+
+  .header-container {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .header-logo, .header-nav, .header-actions {
+    flex: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-logo a {
+    justify-content: center;
+  }
+
+  .header-nav {
+    gap: 1.5rem;
+  }
+}

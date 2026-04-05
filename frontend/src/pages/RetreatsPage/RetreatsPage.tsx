@@ -9,6 +9,7 @@ import './RetreatsPage.css';
 import { Retreat } from '../../types';
 import { getRetreats, getRecommendations } from '../../services/retreatService';
 import { Dropdown } from '../../components/common/Dropdown';
+import { Input } from '../../components/common/Input/Input';
 
 const RetreatsPage: React.FC = () => {
   const [retreats, setRetreats] = useState<Retreat[]>([]);
@@ -129,13 +130,14 @@ const RetreatsPage: React.FC = () => {
           <div className="hero-filters-bar">
             {/* Recommendation Search */}
             <div className="search-group">
-              <input 
+              <Input 
                 type="text" 
                 placeholder="E.g., I have stress and back pain..." 
                 value={searchGoal}
                 onChange={(e) => setSearchGoal(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 className="search-input"
+                wrapperClassName="search-input-wrapper"
               />
               <button 
                 className="btn-primary search-btn" 

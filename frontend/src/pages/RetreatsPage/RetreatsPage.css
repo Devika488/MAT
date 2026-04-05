@@ -52,17 +52,20 @@
   align-items: flex-end;
 }
 
-.search-input {
+.search-input-wrapper {
   flex: 1;
-  height: 52px;
-  padding: 0 1rem;
-  border: 1px solid #dcd9d0;
-  border-radius: 8px;
-  font-size: 1rem;
-  color: #3b523e;
-  outline: none;
-  background-color: white;
-  transition: all 0.2s ease;
+}
+
+.search-input {
+  height: 52px !important;
+  padding: 0 1rem !important;
+  border: 1px solid #dcd9d0 !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  color: #3b523e !important;
+  outline: none !important;
+  background-color: white !important;
+  transition: all 0.2s ease !important;
 }
 
 .search-input:focus {
@@ -156,10 +159,46 @@
   margin-bottom: 1rem;
 }
 
-@media (max-width: 900px) {
-  .retreats-hero {
+@media (max-width: 1024px) {
+  .hero-filters-bar {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 2rem;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .search-group, .filter-group {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .apply-filters-btn {
+    width: 100%;
+  }
+
+  .clear-filters-btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+  
+  .retreats-hero {
+    padding: 2rem 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .search-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input, .search-btn {
+    width: 100%;
   }
 }
