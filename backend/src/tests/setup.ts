@@ -1,9 +1,11 @@
+import { beforeAll, afterAll, beforeEach } from '@jest/globals';
 import dotenv from 'dotenv';
 dotenv.config();              // ✅ loads .env before anything runs
 
 import sql from '../db/index.js';
 
 beforeAll(async () => {
+  // Ensure tables exist
   await sql`
     CREATE TABLE IF NOT EXISTS retreats (
       id SERIAL PRIMARY KEY,
@@ -36,19 +38,26 @@ beforeAll(async () => {
   await sql`CREATE INDEX IF NOT EXISTS idx_bookings_retreat_id ON bookings (retreat_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_bookings_dates ON bookings (check_in, check_out)`;
 
-  await sql`
-    INSERT INTO retreats (name, location, country, duration_days, price_usd, ayurveda_type, capacity)
-    VALUES 
-      ('Test Retreat', 'Trivandrum', 'India', 7, 1000, 'Detox', 1),
-      ('Test Retreat 2', 'Trivandrum', 'India', 7, 2000, 'Detox', 2)
-    ON CONFLICT DO NOTHING
-  `;
-});
+  // Clean state for tests
+  await sql`TRUNCATE TABLE bookings CASCADE`;
+  await sql`TRUNCATE TABLE retreats CASCADE`;
 
-beforeEach(async () => {
-  await sql`DELETE FROM bookings`;
+  await sql`
+    INSERT INTO retreats (id, name, location, country, duration_days, price_usd, ayurveda_type, capacity)
+    VALUES 
+      (1, 'Test Retreat', 'Trivandrum', 'India', 7, 1000, 'Detox', 1),
+      (2, 'Test Retreat 2', 'Trivandrum', 'India', 7, 2000, 'Detox', 2)
+    ON CONFLICT (id) DO UPDATE SET capacity = EXCLUDED.capacity
+  `;
+  
+  // Restart sequence to ensure predictable IDs if not specified
+  await sql`SELECT setval('retreats_id_seq', 2)`;
 });
 
 afterAll(async () => {
   await sql.end();
+});
+
+beforeEach(async () => {
+  await sql`DELETE FROM bookings`;
 });
