@@ -6,6 +6,7 @@ export const limiter = rateLimit({
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
 });
 
 // Stricter for booking endpoint specifically
@@ -15,4 +16,5 @@ export const bookingLimiter = rateLimit({
   message: { error: 'Too many booking attempts, slow down' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
 });

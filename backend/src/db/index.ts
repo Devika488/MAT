@@ -9,6 +9,13 @@ const isLocal = connectionString.includes('localhost') || connectionString.inclu
 const sql = postgres(connectionString, {
   ssl: isLocal ? false : { rejectUnauthorized: false },
   prepare: false,
+  idle_timeout: 20,
+  max_lifetime: 60 * 30,
+  connect_timeout: 10,
 });
+
+if (process.env.NODE_ENV === 'test') {
+  console.log('Postgres connection pool initialized for tests.');
+}
 
 export default sql;
