@@ -24,3 +24,16 @@ export const createBooking = async (payload: BookingPayload) => {
   }
   return data;
 };
+
+export const cancelBookingForGuest = async (id: number) => {
+  const baseUrl = import.meta.env.VITE_API_URL || '';
+  const response = await fetch(`${baseUrl}/api/bookings/${id}`, {
+    method: 'DELETE'
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to cancel booking');
+  }
+  return data;
+};

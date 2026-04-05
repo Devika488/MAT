@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header/Header';
 import { Dropdown } from '../../components/common/Dropdown';
-import { getBookings } from '../../services/bookingService';
+import { getBookings, cancelBookingForGuest } from '../../services/bookingService';
 import { FetchedBooking } from '../../types/booking';
 import { useToast } from '../../components/common/Toast/ToastContext';
 import './AdminPage.css';
@@ -14,19 +14,31 @@ const AdminPage: React.FC = () => {
   const itemsPerPage = 10;
   const { showToast } = useToast();
 
+  const fetchBookings = async () => {
+    try {
+      const data = await getBookings();
+      setBookings(data);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to fetch bookings', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const data = await getBookings();
-        setBookings(data);
-      } catch (err: any) {
-        showToast(err.message || 'Failed to fetch bookings', 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchBookings();
   }, [showToast]);
+
+  const handleCancel = async (id: number) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      await cancelBookingForGuest(id);
+      showToast('Booking cancelled successfully', 'success');
+      fetchBookings();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to cancel', 'error');
+    }
+  };
 
   // Extract unique retreat names for the dropdown
   const uniqueRetreats = Array.from(new Set(bookings.map(b => b.retreat_name))).filter(Boolean);
@@ -86,6 +98,7 @@ const AdminPage: React.FC = () => {
                 <th>Check-in</th>
                 <th>Check-out</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -113,6 +126,16 @@ const AdminPage: React.FC = () => {
                       <span className={`status-badge ${booking.status.toLowerCase()}`}>
                         {booking.status}
                       </span>
+                    </td>
+                    <td>
+                      {booking.status === 'confirmed' && (
+                        <button 
+                          className="cancel-action-btn"
+                          onClick={() => handleCancel(booking.id)}
+                        >
+                          Cancel
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
