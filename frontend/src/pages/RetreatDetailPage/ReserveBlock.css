@@ -83,84 +83,89 @@
 }
 
 
-/* Room Cards grid */
-.rooms-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+/* BANNERS */
+.availability-banner {
+  background-color: #efede6;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-left: 2.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
-.date-input-wrapper.error {
-  border: 1px solid #d1756e !important;
+.availability-banner .banner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #647b68;
 }
 
-.field-error-message {
-  color: #d1756e;
-  font-size: 0.7rem;
-  font-weight: 500;
-  margin-top: 0.25rem;
+.availability-banner.available .banner-icon {
+  color: #5a7b60;
+  border: 1.5px solid #5a7b60;
+  border-radius: 50%;
+  padding: 2px;
 }
 
-.room-card.error {
-  border-color: rgba(209, 117, 110, 0.3);
+.availability-banner.unavailable .banner-icon {
+  color: #8c8c8c;
 }
 
-.room-card {
-  background-color: white;
-  border: 1px solid #efece5;
-  padding: 1.5rem 1.25rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.availability-banner .banner-content {
+  flex: 1;
+}
+
+.banner-content.dual-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.banner-main-col {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
-.room-card h4 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.availability-text {
-  font-size: 0.7rem;
+.banner-primary-text {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
   font-weight: 500;
-  color: #888;
 }
 
-.availability-text.red {
-  color: #d1756e;
+.italic-green {
+  font-style: italic;
+  color: #5a7b60;
 }
 
-.room-price {
-  font-size: 1rem;
+.italic-grey {
+  font-style: italic;
+  color: #666;
+}
+
+.banner-secondary-text {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8c8c8c;
   font-weight: 600;
-  color: #1a1a1a;
-  margin-top: 1.5rem;
 }
 
-/* Room Status variations */
-.room-card.selected {
-  border-color: #3b523e;
-  background-color: white;
+.banner-cap-col {
+  font-size: 0.8rem;
+  color: #999;
 }
 
-.room-card.booked {
-  background-color: #f6f5f3;
-  border-color: transparent;
-  cursor: not-allowed;
-  opacity: 0.7;
+.banner-text-initial {
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-style: italic;
+  color: #647b68;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
-.room-card.booked h4, .room-card.booked .room-price {
-  color: #a09c95;
-}
-
-.room-card:hover:not(.booked):not(.selected) {
-  border-color: #dcd9d0;
-}
 
 /* Footer Section */
 .reserve-footer {
@@ -222,7 +227,16 @@
   .reserve-wrapper {
     padding: 1.5rem;
   }
-  .dates-row, .guest-row, .rooms-grid {
+  .dates-row, .guest-row {
     grid-template-columns: 1fr;
+  }
+  .availability-banner {
+    margin-left: 0;
+    align-items: flex-start;
+  }
+  .banner-content.dual-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 }
