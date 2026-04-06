@@ -1,21 +1,22 @@
 import fs from 'fs';
 import pg from 'pg';
+import dotenv from 'dotenv';
 
-const connectionString = 'postgresql://postgres:DVgzwItItlNxSvAu@localhost:5432/mat_db';
+dotenv.config();
 
 const pool = new pg.Pool({
-  connectionString,
+  connectionString: process.env.DATABASE_URL,
 });
 
 async function run() {
   try {
     const sql = fs.readFileSync('./init.sql', 'utf8');
     await pool.query(sql);
-    console.log("Database seeded successfully.");
+    console.log('Database seeded successfully.');
   } catch (err) {
-    console.error("Error seeding database:", err);
+    console.error('Error seeding database:', err);
   } finally {
-    pool.end();
+    await pool.end();
   }
 }
 

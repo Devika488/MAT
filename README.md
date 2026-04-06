@@ -28,30 +28,31 @@ npm install
 
 ### 2. Database
 
-Create a database named `ayurvedatrip`:
+Create a local database named `ayurvedatrip` using `psql` or a tool like pgAdmin:
 ```bash
 psql -U postgres -c "CREATE DATABASE ayurvedatrip;"
 ```
 
-Run migrations and seed data:
+Initialize schema and seed data:
 ```bash
 cd backend
-npm run migrate
 npm run seed
 ```
 
-This creates the `retreats` and `bookings` tables and seeds 
-8 realistic retreats across India and Sri Lanka.
+This script (using Node.js and the `init.sql` file) creates the `retreats` and `bookings` 
+tables and seeds them with realistic data.
 
 ### 3. Environment
 
+Copy the `.env.example` to `.env` in the `backend` folder and update your `DATABASE_URL`:
+
 ```env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/ayurvedatrip
 PORT=3001
 BREVO_API_KEY=your_brevo_api_key_here
 BREVO_SENDER_EMAIL=your_sender_email_here
 GOOGLE_AI_KEY=your_google_ai_key_here
 GROQ_AI_KEY=your_groq_ai_key_here
-DATABASE_URL=postgresql://user:password@localhost:5432/ayurvedatrip
 FRONTEND_URL=http://localhost:5173
 ```
 
